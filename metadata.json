@@ -1,0 +1,6 @@
+{
+  "name": "Advance Health",
+  "description": "Clinical deterioration early-warning platform predicting patient risk from incomplete, heterogeneous data with prominent confidence scoring.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
