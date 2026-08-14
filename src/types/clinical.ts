@@ -1,6 +1,14 @@
 export type Sex = 'male' | 'female' | 'other' | 'unspecified';
 
-export type UserRole = 'physician' | 'nurse' | 'data_auditor' | 'chief_officer';
+export type UserRole =
+  | 'doctor_consultant'
+  | 'staff_nurse'
+  | 'medical_superintendent'
+  | 'ai_safety_auditor'
+  | 'physician'
+  | 'nurse'
+  | 'chief_officer'
+  | 'data_auditor';
 
 export interface UserProfile {
   id: string;
@@ -9,7 +17,9 @@ export interface UserProfile {
   roleTitle: string;
   department: string;
   badgeNumber: string;
-  securityClearance: 'Level 1 - Public' | 'Level 2 - Clinical Staff' | 'Level 3 - Attending Critical' | 'Level 4 - Full System Audit';
+  securityClearance: 'Level 1 - Public' | 'Level 2 - Clinical Staff' | 'Level 3 - Attending Critical' | 'Level 4 - Full System Audit' | 'Level 4 - Medical Superintendent';
+  assignedWardUnits?: string[]; // e.g. ['Medical ICU (MICU)', 'Step-Down Ward 4B']
+  assignedPatientIds?: string[]; // Specific patients under direct care
   permissions: {
     canTriggerEmergencyRRT: boolean;
     canOrderDiagnostics: boolean;
@@ -18,8 +28,22 @@ export interface UserProfile {
     canSignOffReports: boolean;
     canViewAuditLogs: boolean;
     canConfigureRules: boolean;
+    canViewHospitalSuperintendentDashboard: boolean;
+    canBroadcastHospitalAlerts: boolean;
   };
   avatarInitials: string;
+}
+
+export interface TeeAttestationStatus {
+  enclaveState: 'hardware_attested' | 'verifying' | 're_attested';
+  hardwareType: 'AMD SEV-SNP Confidential VM' | 'Intel TDX Confidential Enclave' | 'AWS Nitro Enclaves';
+  pcr0Measurement: string;
+  mrenclaveHash: string;
+  memoryEncryption: string;
+  attestationTimestamp: string;
+  zeroKnowledgePhiTokens: boolean;
+  enclaveSignerPubKey: string;
+  verifiedLatencyMs: number;
 }
 
 export interface AuditLogEntry {
@@ -28,7 +52,18 @@ export interface AuditLogEntry {
   userId: string;
   userName: string;
   userRole: string;
-  action: 'LOGIN' | 'ASSESSMENT_RUN' | 'RECORD_EDIT' | 'RRT_TRIGGER' | 'DIAGNOSTIC_ORDER' | 'PDF_DOWNLOAD' | 'CONFIDENCE_OVERRIDE' | 'SBAR_GENERATED';
+  action:
+    | 'LOGIN'
+    | 'ASSESSMENT_RUN'
+    | 'RECORD_EDIT'
+    | 'RRT_TRIGGER'
+    | 'DIAGNOSTIC_ORDER'
+    | 'PDF_DOWNLOAD'
+    | 'CONFIDENCE_OVERRIDE'
+    | 'SBAR_GENERATED'
+    | 'TEE_ATTESTATION_VERIFIED'
+    | 'HOSPITAL_ALERT_BROADCAST'
+    | 'WARD_CAPACITY_OVERRIDE';
   details: string;
   patientId?: string;
   hashSignature: string;
@@ -42,6 +77,12 @@ export interface PatientDemographics {
   knownConditions: string[];
   medications: string[];
   notes?: string;
+  wardUnit?: string;
+  bedNumber?: string;
+  assignedDoctorId?: string;
+  assignedDoctorName?: string;
+  assignedNurseId?: string;
+  assignedNurseName?: string;
 }
 
 export interface VitalLabReading {
@@ -180,4 +221,33 @@ export interface FullAssessmentResult {
     mode: 'rich' | 'limited';
     syntheticNotice: string;
   };
+}
+
+// Hospital Superintendent Overview Types
+export interface HospitalWardSummary {
+  id: string;
+  name: string;
+  code: string;
+  category: 'ICU' | 'Step-Down' | 'Emergency' | 'Acute Medical' | 'Specialized';
+  totalBeds: number;
+  occupiedBeds: number;
+  criticalPatientsCount: number;
+  dataCappedUncertaintyCount: number;
+  averageAcuity: number; // 1.0 - 5.0
+  nurseToPatientRatio: string;
+  chiefNurseOnDuty: string;
+  attendingConsultant: string;
+  status: 'optimal' | 'elevated_alert' | 'surge_capacity';
+  recentAlert?: string;
+}
+
+export interface HospitalIncidentAlert {
+  id: string;
+  timestamp: string;
+  wardCode: string;
+  patientId: string;
+  patientName: string;
+  severity: 'critical_rrt' | 'high_drift' | 'uncertainty_warning' | 'resolved';
+  headline: string;
+  actionTaken: string;
 }
