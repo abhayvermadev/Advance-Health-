@@ -22,8 +22,13 @@ export const RiskConfidenceDisplay: React.FC<RiskConfidenceDisplayProps> = ({
   assessment,
   isLimitedMode,
 }) => {
-  const { stage1Completeness, stage3Risk, stage5Recommendation } = assessment;
   const [showCompletenessDetails, setShowCompletenessDetails] = useState<boolean>(false);
+
+  if (!assessment || !assessment.stage3Risk) {
+    return null;
+  }
+
+  const { stage1Completeness, stage3Risk, stage5Recommendation } = assessment;
 
   // Risk styling helpers
   const getRiskDetails = (level: RiskLevel) => {

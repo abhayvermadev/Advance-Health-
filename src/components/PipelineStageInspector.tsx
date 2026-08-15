@@ -10,6 +10,14 @@ export const PipelineStageInspector: React.FC<PipelineStageInspectorProps> = ({ 
   const [activeStage, setActiveStage] = useState<number>(1);
   const [showRawJson, setShowRawJson] = useState<boolean>(false);
 
+  if (!assessment || !assessment.stage1Completeness) {
+    return (
+      <div className="p-4 text-center text-xs text-[#5F6368] font-mono">
+        Pipeline audit data loading...
+      </div>
+    );
+  }
+
   const stages = [
     {
       num: 1,

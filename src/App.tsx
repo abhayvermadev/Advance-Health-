@@ -14,6 +14,7 @@ import { WardTriageGrid } from './components/WardTriageGrid';
 import { HardModeSimulator } from './components/HardModeSimulator';
 import { MedicalSuperintendentView } from './components/MedicalSuperintendentView';
 import { TeeSecurityModal } from './components/TeeSecurityModal';
+import { HackathonPitchDeckModal } from './components/HackathonPitchDeckModal';
 import { PRESET_SCENARIOS, PresetScenario } from './data/presetScenarios';
 import { CLINICAL_USERS } from './data/authUsers';
 import { PatientRecord, FullAssessmentResult, UserProfile, AuditLogEntry } from './types/clinical';
@@ -81,6 +82,7 @@ export default function App() {
   const [isSbarModalOpen, setIsSbarModalOpen] = useState<boolean>(false);
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState<boolean>(false);
   const [isTeeModalOpen, setIsTeeModalOpen] = useState<boolean>(false);
+  const [isPitchDeckOpen, setIsPitchDeckOpen] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<'superintendent' | 'ward' | 'patient'>('ward');
 
   const [selectedScenario, setSelectedScenario] = useState<PresetScenario>(PRESET_SCENARIOS[0]);
@@ -417,6 +419,7 @@ export default function App() {
         onOpenAuditLog={() => setIsAuditModalOpen(true)}
         onOpenSbar={handleOpenSbar}
         onOpenTeeSecurity={() => setIsTeeModalOpen(true)}
+        onOpenPitchDeck={() => setIsPitchDeckOpen(true)}
         activeView={activeView}
         onToggleView={handleToggleView}
       />
@@ -666,8 +669,10 @@ export default function App() {
                         {(activeTab === 'trends' || showTrends) && (
                           <div className="p-3.5">
                             <TimeSeriesVisualizer
-                              record={record}
-                              forecastMinutes={120}
+                              parameters={record.parameters}
+                              trends={assessment.stage2Trajectory?.trendAnalyses}
+                              isLimitedMode={isLimitedMode}
+                              assessment={assessment}
                             />
                           </div>
                         )}
@@ -703,7 +708,6 @@ export default function App() {
                           <div className="p-3.5">
                             <ContributingFactors
                               explainability={assessment.stage4Explainability}
-                              riskAssessment={assessment.stage3Risk}
                             />
                           </div>
                         )}
@@ -739,8 +743,9 @@ export default function App() {
                           <div className="p-3.5">
                             <DataImprovementPanel
                               recommendation={assessment.stage5Recommendation}
-                              risk={assessment.stage3Risk}
-                              onAddRecommendedParameter={handleAddRecommendedParameter}
+                              confidenceCapped={assessment.stage3Risk.confidenceCapApplied}
+                              confidenceScore={assessment.stage3Risk.confidenceScore}
+                              onAddParameter={handleAddRecommendedParameter}
                             />
                           </div>
                         )}
@@ -840,6 +845,12 @@ export default function App() {
       <ClinicalDisclaimerModal
         isOpen={isDisclaimerOpen}
         onClose={() => setIsDisclaimerOpen(false)}
+      />
+
+      {/* Interactive 8-Slide Hackathon Pitch Deck Modal */}
+      <HackathonPitchDeckModal
+        isOpen={isPitchDeckOpen}
+        onClose={() => setIsPitchDeckOpen(false)}
       />
     </div>
   );

@@ -23,7 +23,10 @@ export const DataImprovementPanel: React.FC<DataImprovementPanelProps> = ({
   confidenceScore,
   onAddParameter,
 }) => {
-  const { dataImprovementList, actionSteps, urgencyLevel, headline } = recommendation;
+  const dataImprovementList = recommendation?.dataImprovementList || [];
+  const actionSteps = recommendation?.actionSteps || [];
+  const urgencyLevel = recommendation?.urgencyLevel || 'routine';
+  const headline = recommendation?.headline || 'Standard Clinical Monitoring';
 
   const getPriorityBadge = (priority: string) => {
     switch (priority?.toLowerCase()) {

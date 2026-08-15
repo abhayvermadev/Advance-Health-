@@ -17,7 +17,9 @@ interface ContributingFactorsProps {
 }
 
 export const ContributingFactors: React.FC<ContributingFactorsProps> = ({ explainability }) => {
-  const { topContributingFactors, summary, patientContextConsiderations } = explainability;
+  const topContributingFactors = explainability?.topContributingFactors || [];
+  const summary = explainability?.summary || 'Assessment completed.';
+  const patientContextConsiderations = explainability?.patientContextConsiderations || '';
 
   const getWeightBadge = (weight: string) => {
     switch (weight?.toLowerCase()) {

@@ -25,17 +25,20 @@ import {
 } from '../types/clinical';
 
 interface TimeSeriesVisualizerProps {
-  parameters: ParameterSeries[];
+  parameters?: ParameterSeries[];
   trends?: ParameterTrendAnalysis[];
-  isLimitedMode: boolean;
+  isLimitedMode?: boolean;
   assessment?: FullAssessmentResult;
+  record?: any;
+  forecastMinutes?: number;
 }
 
 export const TimeSeriesVisualizer: React.FC<TimeSeriesVisualizerProps> = ({
   parameters,
   trends = [],
-  isLimitedMode,
+  isLimitedMode = false,
   assessment,
+  record,
 }) => {
   // Mode toggles
   const [showPredictiveOverlay, setShowPredictiveOverlay] = useState<boolean>(true);
@@ -43,13 +46,20 @@ export const TimeSeriesVisualizer: React.FC<TimeSeriesVisualizerProps> = ({
   const [simulationScenario, setSimulationScenario] = useState<'natural' | 'intervened'>('natural');
   const [selectedForecastMetric, setSelectedForecastMetric] = useState<string>('composite_risk');
 
+  // Resolve parameter list safely from either parameters prop or record prop
+  const resolvedParameters: ParameterSeries[] = useMemo(() => {
+    if (parameters && Array.isArray(parameters)) return parameters;
+    if (record?.parameters && Array.isArray(record.parameters)) return record.parameters;
+    return [];
+  }, [parameters, record]);
+
   // Filter active parameters with at least 1 reading
   const activeParams = useMemo(() => {
-    return parameters.filter((p) => {
-      const readings = isLimitedMode ? p.readings.slice(-1) : p.readings;
+    return resolvedParameters.filter((p) => {
+      const readings = isLimitedMode ? (p.readings || []).slice(-1) : (p.readings || []);
       return readings.length > 0;
     });
-  }, [parameters, isLimitedMode]);
+  }, [resolvedParameters, isLimitedMode]);
 
   const currentRisk = assessment?.stage3Risk?.riskScore ?? 65;
   const currentConfidence = assessment?.stage3Risk?.confidenceScore ?? 75;

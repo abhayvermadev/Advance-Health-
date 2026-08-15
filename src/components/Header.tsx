@@ -24,6 +24,7 @@ import {
   LogIn,
   UserPlus,
   Users,
+  Award,
 } from 'lucide-react';
 import { PRESET_SCENARIOS, PresetScenario } from '../data/presetScenarios';
 import { UserProfile } from '../types/clinical';
@@ -44,6 +45,7 @@ interface HeaderProps {
   onOpenAuditLog: () => void;
   onOpenSbar: () => void;
   onOpenTeeSecurity: () => void;
+  onOpenPitchDeck: () => void;
   activeView: 'superintendent' | 'ward' | 'patient';
   onToggleView: (view: 'superintendent' | 'ward' | 'patient') => void;
 }
@@ -64,6 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuditLog,
   onOpenSbar,
   onOpenTeeSecurity,
+  onOpenPitchDeck,
   activeView,
   onToggleView,
 }) => {
@@ -222,6 +225,17 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 text-[11px]">
+          {/* Hackathon Pitch Deck 8-Slide Presentation */}
+          <button
+            type="button"
+            onClick={onOpenPitchDeck}
+            className="flex items-center gap-1 bg-[#1967D2] hover:bg-[#1557B0] text-white px-2.5 py-0.5 rounded-xs text-[11px] font-mono font-bold border border-[#4285F4] transition-all cursor-pointer shadow-xs animate-pulse"
+            title="Open 8-Slide Interactive Hackathon Pitch Deck & Export"
+          >
+            <Award className="w-3.5 h-3.5 text-[#FDD663]" />
+            <span>Pitch Deck (8 Slides)</span>
+          </button>
+
           {/* SBAR Quick Handoff */}
           <button
             type="button"
